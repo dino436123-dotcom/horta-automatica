@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#101713">
+  <meta name="description" content="Painel da Horta Inteligente ESP32">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icons/icon-192.png">
+  <link rel="apple-touch-icon" href="./icons/icon-192.png">
+  <link rel="stylesheet" href="./style.css">
+  <title>Horta Viva</title>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><div class="brand-mark">✳</div><div><strong>Horta Viva</strong><small>Horta inteligente</small></div></div>
+    <div class="connection"><span id="connectionDot" class="dot"></span><span id="connectionText">Modo demonstração</span></div>
+  </header>
+
+  <main>
+    <section class="welcome">
+      <div><p class="eyebrow">SEU CANTINHO VERDE</p><h1>Olá, cultivador<span>.</span></h1><p class="muted">Acompanhe sua planta em tempo real.</p></div>
+      <div class="plant-icon" aria-hidden="true">🌱</div>
+    </section>
+
+    <section class="section-heading"><div><h2>Visão geral</h2><p class="muted">Planta 01 · Atualização automática</p></div><button id="refreshBtn" class="icon-button" aria-label="Atualizar dados">↻</button></section>
+
+    <section class="metrics">
+      <article class="metric-card moisture">
+        <div class="metric-top"><span>Umidade do solo</span><span class="metric-icon">◉</span></div>
+        <div class="metric-value"><span id="soilValue">42</span><small>%</small></div>
+        <div class="meter"><span id="soilBar" style="width:42%"></span></div>
+        <p id="soilStatus" class="metric-note">Leitura de demonstração</p>
+      </article>
+      <article class="metric-card">
+        <div class="metric-top"><span>Temperatura</span><span class="metric-icon">⌁</span></div>
+        <div class="metric-value"><span id="tempValue">28.4</span><small>°C</small></div>
+        <p class="metric-note">Temperatura do ar</p>
+      </article>
+      <article class="metric-card">
+        <div class="metric-top"><span>Umidade do ar</span><span class="metric-icon">≈</span></div>
+        <div class="metric-value"><span id="airValue">58</span><small>%</small></div>
+        <p class="metric-note">Umidade relativa</p>
+      </article>
+      <article class="metric-card">
+        <div class="metric-top"><span>Iluminação</span><span class="metric-icon">☼</span></div>
+        <div class="metric-value"><span id="lightValue">12000</span><small>lux</small></div>
+        <p class="metric-note">Sensor opcional</p>
+      </article>
+    </section>
+
+    <section class="panel plant-health">
+      <div class="panel-title"><div><h2>Irrigação</h2><p class="muted">Controle da bomba de 12 V</p></div><span id="pumpBadge" class="status-badge">Desligada</span></div>
+      <div class="irrigation-row">
+        <div class="water-symbol">💧</div>
+        <div class="irrigation-info"><strong id="pumpState">Bomba desligada</strong><p id="lastWatered" class="muted">Última irrigação: sem dados</p></div>
+      </div>
+      <div class="controls">
+        <button id="pumpBtn" class="primary-button">Iniciar irrigação</button>
+        <button id="stopBtn" class="secondary-button">Parar bomba</button>
+      </div>
+      <p class="fine-print">Use a irrigação manual somente com água disponível. O firmware deve impor tempo máximo de acionamento e proteção contra funcionamento a seco.</p>
+    </section>
+
+    <section class="panel">
+      <div class="panel-title"><div><h2>Automação</h2><p class="muted">Ajustes para o controlador ESP32</p></div></div>
+      <div class="setting-row"><div><strong>Modo automático</strong><p class="muted">Irrigar conforme a umidade configurada</p></div><label class="switch"><input type="checkbox" id="autoToggle" checked><span></span></label></div>
+      <div class="setting-row"><div><strong>Limite para irrigar</strong><p class="muted">Quando a umidade ficar abaixo deste valor</p></div><div class="number-control"><input id="threshold" type="number" min="1" max="90" value="35"><span>%</span></div></div>
+      <div class="setting-row"><div><strong>Duração máxima</strong><p class="muted">Limite de segurança por acionamento</p></div><div class="number-control"><input id="duration" type="number" min="1" max="120" value="15"><span>seg.</span></div></div>
+      <button id="saveSettingsBtn" class="secondary-button full">Salvar configurações</button>
+      <p class="fine-print">A duração está em segundos neste protótipo para permitir testes seguros. O firmware final deve validar todos os limites.</p>
+    </section>
+
+    <section class="panel">
+      <div class="panel-title"><div><h2>Desenvolvimento da planta</h2><p class="muted">Registre a evolução semanalmente</p></div></div>
+      <div class="growth-grid">
+        <label>Altura (cm)<input id="plantHeight" type="number" min="0" max="500" step="0.1" placeholder="Ex.: 18.5"></label>
+        <label>Número de folhas<input id="leafCount" type="number" min="0" max="5000" step="1" placeholder="Ex.: 8"></label>
+      </div>
+      <label class="notes-label">Observações<textarea id="plantNotes" rows="3" placeholder="Folhas novas, cor, manchas, aparência..."></textarea></label>
+      <button id="saveGrowthBtn" class="secondary-button full">Salvar registro neste aparelho</button>
+      <p id="growthSaved" class="fine-print"></p>
+    </section>
+
+    <section class="panel settings-panel">
+      <div class="panel-title"><div><h2>Conexão ESP32 / API</h2><p class="muted">Endereço do serviço de comunicação</p></div></div>
+      <label class="field-label" for="apiUrl">URL base da API</label>
+      <input id="apiUrl" class="text-input" type="url" placeholder="https://sua-api.exemplo.com">
+      <label class="field-label" for="apiKey">Token de acesso (opcional)</label>
+      <input id="apiKey" class="text-input" type="password" autocomplete="off" placeholder="Token configurado no servidor">
+      <div class="controls"><button id="connectBtn" class="primary-button">Conectar</button><button id="demoBtn" class="secondary-button">Usar demonstração</button></div>
+      <p class="fine-print">A conexão direta de um PWA HTTPS com um ESP32 em HTTP pode ser bloqueada pelo navegador. Para acesso remoto seguro, use uma API HTTPS autenticada; não exponha a porta do ESP32 diretamente à internet.</p>
+      <p id="apiMessage" class="fine-print" role="status"></p>
+    </section>
+  </main>
+
+  <nav class="bottom-nav" aria-label="Navegação">
+    <a href="#top" class="nav-item active"><span>⌂</span>Início</a>
+    <a href="#plant-health" class="nav-item" id="navIrrigation"><span>♧</span>Irrigação</a>
+    <a href="#growth" class="nav-item" id="navGrowth"><span>✳</span>Planta</a>
+    <a href="#connection" class="nav-item" id="navConnection"><span>⚙</span>Conexão</a>
+  </nav>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="./app.js"></script>
+</body>
+</html>
